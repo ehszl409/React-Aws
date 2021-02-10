@@ -30,7 +30,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
 ---
-실제 서버 (배포용 서버) 프로파일 모드 prod
+# 실제 서버 (배포용 서버) 프로파일 모드 prod
 server:
   port: 8080
 spring:
