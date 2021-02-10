@@ -12,9 +12,12 @@ spring:
 --- # 이걸로 구분을 지을 수 있다.
 # 개발 서버 (테스트 서버) 프로파일 모드 : dev
 server:
-  port: 8080
+  port: 8081
 spring:
-  profiles: dev # 프로파일 모드 설정
+  config:
+    activate:
+      on-profile:
+        - dev # 프로파일 모드를 dev로 지정
   datasource:
     # H2 DB 로 테스트 한다.
     driver-class-name: org.h2.Driver
@@ -34,7 +37,10 @@ spring:
 server:
   port: 8080
 spring:
-  profiles: prod
+  config:
+    activate:
+      on-profile:
+        - prod # 프로파일 모드를 prod로 지정
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://hk-mysql:3306/test?serverTimezone=Asia/Seoul
