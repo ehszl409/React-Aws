@@ -1,0 +1,51 @@
+version: "3"
+services:
+  hk-mysql: # 서비스 명
+    #container_name: hk-mysql
+    restart: always # 꺼지면 자동으로 켜진다.
+    # dockerHub에서 MySQL server 5.7 를 찾아서 다운 받겠다.
+    image: mysql/mysql-server:5.7
+    ports: # 포트 포워딩
+      - "3306:3306"
+    environment: # MySQL 환경 세팅
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_ROOT_HOST: "%" # 누구나 접근
+    # insert update 데이터가 컨테이너를 껏다가 켜도
+    # 데이터가 유지되도록 외부의 공간에 볼륨을 연결시켜놓는다.
+    volumes:
+      - ./db:/var/lib/mysql #내가 알고 있는 공간에 폴더를 만든다.
+      #- db:/var/lib/mysql # 내가 모드는 공간.
+    # 인코딩 설정 (한글 깨짐 방지)
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+
+  backend:
+    #container_name: backend
+    restart: always # 항상 자동으로 재시작 설정
+    build: ./book-backend/. #Dockerfile을 찾아서 빌드 하겠다.
+    ports: # 포트 포워딩
+      - "8080:8080"
+    depends_on: # MySQL이 먼저 뜬 다음 톰캣이 뜨도록 순서를 설정한다.
+      - hk-mysql
+
+      # 위 상태만 실행되면 MySQL과 Spring이 같이 뜬다.
+      # 밑은 react 부분이다.
+
+  frontend:
+    # container_name: frontend
+    restart: always
+    build: ./book-frontend/.
+    ports:
+      - "80:80"
+      # frontend 와 backend의 호스트를 하나로 묶었다.
+      # DB도 link를 사용하면 되지만 브라우저에서 서비스 명이라고 인식하지 않고
+      # DNS서버에서 찾기 때문에 오류가 난다.
+      # link를 backend와 걸어줌으로써 localhost:80으로 backend와 frontend 모두 접근 가능하다.
+    links:
+      - backend
+      # backend가 먼저 뜨도록 순서를 설정 해준다.
+    depends_on:
+      - backend
+
+volumes:
+  db:
